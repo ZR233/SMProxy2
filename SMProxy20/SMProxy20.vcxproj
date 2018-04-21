@@ -24,6 +24,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>SMProxy20</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <ProjectName>SMProxy2</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -147,12 +148,59 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CMPP20ActiveTestResp.hpp" />
+    <ClInclude Include="CMPP20Connect.hpp" />
+    <ClInclude Include="CMPP20ConnectResp.hpp" />
+    <ClInclude Include="CMPP20Deliver.hpp" />
+    <ClInclude Include="CMPP20DeliverResp.hpp" />
+    <ClInclude Include="CMPP20Head.hpp" />
+    <ClInclude Include="CMPP20Resp.hpp" />
+    <ClInclude Include="CMPP20Submit.hpp" />
+    <ClInclude Include="CMPP20SubmitResp.hpp" />
+    <ClInclude Include="CMPP20TerminateResp.hpp" />
+    <ClInclude Include="CResovle.h" />
+    <ClInclude Include="CSubmit.h" />
+    <ClInclude Include="Defines.h" />
+    <ClInclude Include="exception.hpp" />
+    <ClInclude Include="Field.hpp" />
+    <ClInclude Include="IBind.hpp" />
+    <ClInclude Include="IBaseParam.hpp" />
+    <ClInclude Include="IDeliver.hpp" />
+    <ClInclude Include="IHead.hpp" />
+    <ClInclude Include="IMsg.hpp" />
+    <ClInclude Include="IReport.hpp" />
+    <ClInclude Include="IResp.hpp" />
+    <ClInclude Include="IRespAll.hpp" />
+    <ClInclude Include="ISubmit.hpp" />
+    <ClInclude Include="IUnBind.hpp" />
+    <ClInclude Include="MD5.h" />
+    <ClInclude Include="SGIP12Bind.hpp" />
+    <ClInclude Include="SGIP12Deliver.hpp" />
+    <ClInclude Include="SGIP12Head.hpp" />
+    <ClInclude Include="SGIP12Report.hpp" />
+    <ClInclude Include="SGIP12Resp.hpp" />
+    <ClInclude Include="SGIP12Submit.hpp" />
+    <ClInclude Include="SMGP303ActiveTestResp.hpp" />
+    <ClInclude Include="SMGP303Deliver.hpp" />
+    <ClInclude Include="SMGP303DeliverResp.hpp" />
+    <ClInclude Include="SMGP303ExitResp.hpp" />
+    <ClInclude Include="SMGP303Head.hpp" />
+    <ClInclude Include="SMGP303Login.hpp" />
+    <ClInclude Include="SMGP303LoginResp.hpp" />
+    <ClInclude Include="SMGP303Resp.hpp" />
+    <ClInclude Include="SMGP303Submit.hpp" />
+    <ClInclude Include="SMGP303SubmitResp.hpp" />
+    <ClInclude Include="SMProxy2.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Utils.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CResovle.cpp" />
+    <ClCompile Include="CSubmit.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="SMProxy20.cpp" />
+    <ClCompile Include="MD5.cpp" />
+    <ClCompile Include="SMProxy2.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
