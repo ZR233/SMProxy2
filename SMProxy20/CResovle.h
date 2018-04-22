@@ -8,8 +8,8 @@
 //#include "IDeliver.hpp"
 
 
-#include "CMPP20Connect.hpp"
-#include "CMPP20Submit.hpp"
+//#include "CMPP20Connect.hpp"
+//#include "CMPP20Submit.hpp"
 //#include "CMPP20Deliver.hpp"
 //
 //
@@ -45,15 +45,9 @@ namespace smproxy {
 			std::string sp_id
 		);
 		~CResolve() {}
-		enum Ecommand
-		{
-			Bind = 1, BindResp = 0x80000001,
-			UnBind = 2, UnBindResp = 0x80000002,
-			Submit = 3, SubmitResp = 0x80000003,
-			Deliver = 4, DeliverResp = 0x80000004,
-			Report = 5, ReportResp = 0x80000005,
-			ActiveTest = 8, ActiveTestResp = 0x80000008
-		};
+
+		void resolveBuf(bytes& buf);
+
 		bytes submit(
 			int& serial_numb,
 			char* src_ID,
@@ -381,15 +375,9 @@ namespace smproxy {
 		//接口
 		boost::shared_ptr<IHead> hd;
 		boost::shared_ptr<IBind> bd;
-		//IHead* hd;
-		//IBind* bd;
 		boost::shared_ptr<ISubmit> sb;
 		//boost::shared_ptr<IDeliver> dlv;
 		//boost::shared_ptr<IReport> rp;
-
-		CMPP20Head cmpphd;
-		CMPP20Connect cmppbd;
-
 		bytes buf_;
 	};
 

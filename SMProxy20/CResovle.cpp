@@ -1,25 +1,37 @@
 ﻿#include "stdafx.h"
 #include "CResovle.h"
 #include <boost\make_shared.hpp>
+
+
 #include "CMPP20Head.hpp"
 #include "CMPP20Submit.hpp"
 #include "CMPP20Connect.hpp"
+
+#include "SGIP12Head.hpp"
+//#include "SGIP12Deliver.hpp"
+//#include "SGIP12Report.hpp"
+//#include "SGIP12Submit.hpp"
+//#include "SGIP12Bind.hpp"
+//
+#include "SMGP303Head.hpp"
+//#include "SMGP303Login.hpp"
+//#include "SMGP303Submit.hpp"
+//#include "SMGP303Deliver.hpp"
+
+
+#include "SMProxy2.h"
 namespace smproxy {
 	CResolve::CResolve(Protocol protocol, std::string sp_id)
 	{
 		switch (protocol)
 		{
 		case SGIP12:
-			//hd = boost::make_shared<SGIP12Head>(SGIP12Head());
+			hd.reset(new SGIP12Head);
 			//sb = boost::make_shared<SGIP12Submit>(SGIP12Submit());
 			//dlv = boost::make_shared<SGIP12Deliver>(SGIP12Deliver());
 			//rp = boost::make_shared<SGIP12Report>(SGIP12Report());
 			break;
 		case CMPP20:
-			//hd = &cmpphd;
-			//bd = &cmppbd;
-			//hd = new CMPP20Head();
-			//bd = new CMPP20Connect();
 			hd.reset(new CMPP20Head);
 			bd.reset(new CMPP20Connect);
 			//sb = boost::make_shared<CMPP20Submit>(CMPP20Submit());
@@ -27,7 +39,7 @@ namespace smproxy {
 			//rp = boost::make_shared<CMPP20Deliver>(CMPP20Deliver());
 			break;
 		case SMGP303:
-			//hd = boost::make_shared<SMGP303Head>(SMGP303Head());
+			hd.reset(new SMGP303Head);
 			//sb = boost::make_shared<SMGP303Submit>(SMGP303Submit());
 			//dlv = boost::make_shared<SMGP303Deliver>(SMGP303Deliver());
 			//rp = boost::make_shared<SMGP303Deliver>(SMGP303Deliver());
@@ -58,7 +70,7 @@ namespace smproxy {
 			serial_numb = hd->createSerualNum(serial_numb);
 			auto head_buf = hd->header(
 				buf_.size(),
-				0x00000004,
+				Command::submit,
 				hd->getSerialNumb()
 			);
 			buf_.insert(buf_.begin(), head_buf.begin(), head_buf.end());
@@ -82,15 +94,21 @@ namespace smproxy {
 		serial_numb = hd->createSerualNum(serial_numb);
 		auto head_buf = hd->header(
 			buf_.size(),
-			0x00000001,
+			login,
 			hd->getSerialNumb()
 		);
+		hd->setSpId(sp_ID_);
 		head_buf = hd->header(
 			buf_.size()+ head_buf.size(),
-			0x00000001,
+			login,
 			hd->getSerialNumb()
 		);
 		buf_.insert(buf_.begin(), head_buf.begin(), head_buf.end());
 		return buf_;
+	}
+
+	void CResolve::resolveBuf(bytes& buf)
+	{
+		hd->recvHead(buf);
 	}
 }

@@ -5,8 +5,6 @@ Date:2018-01-16
 Description:CMPP connect处理
 **************************************************/
 #include "IBind.hpp"
-#include <boost/date_time/gregorian/conversion.hpp>
-#include <boost/date_time/posix_time/conversion.hpp>
 #include "MD5.h"
 #include "Utils.hpp"
 
@@ -20,7 +18,6 @@ namespace smproxy {
 		Buffer body_;
 	public:
 		CMPP20Connect(){
-			//source_addr = bytes(6, 0);
 			//2.0
 			password_.setSize(34);
 			body_.pushField(sp_ID_.set(6, "0"));
@@ -29,48 +26,7 @@ namespace smproxy {
 			body_.pushField(timestamp_.set(4, 0));
 		}
 		virtual ~CMPP20Connect() {};
-		//获得时间字符串
-		std::string getTimeStr()
-		{
-			auto timeTemp = boost::posix_time::second_clock::local_time();
-			auto td = timeTemp.time_of_day();
-			auto date = timeTemp.date();
-			using std::string;
-			using std::to_string;
 
-			tm t = to_tm(date);
-			tm t2 = to_tm(td);
-
-			//string YY = std::to_string(t.tm_year + 1900);
-			//YY.erase(0, 2);
-			string MM = to_string(t.tm_mon + 1);
-			if (MM.size() == 1)
-			{
-				MM.insert(MM.begin(), '0');
-			}
-			string DD = to_string(t.tm_mday);
-			if (DD.size() == 1)
-			{
-				DD.insert(DD.begin(), '0');
-			}
-			string HH = to_string(t2.tm_hour);
-			if (HH.size() == 1)
-			{
-				HH.insert(HH.begin(), '0');
-			}
-			string MI = to_string(t2.tm_min);
-			if (MI.size() == 1)
-			{
-				MI.insert(MI.begin(), '0');
-			}
-			auto SS = to_string(t2.tm_sec);
-			if (SS.size() == 1)
-			{
-				SS.insert(SS.begin(), '0');
-			}
-			string str = MM + DD + HH + MI + SS;
-			return str;
-		}
 		// 生成connect
 		// @sp_id:			用户名
 		// @shard_secret:	密码
@@ -147,31 +103,7 @@ namespace smproxy {
 			}
 			password_ = temp_pass;
 		}
-
-
-		//源地址，此处为SP_Id，即SP的企业代码。
-		//std::string getName() { 
-		//	std::string name;
-		//	name.assign(source_addr.begin(), source_addr.end());
-		//	name = name.c_str();
-		//	return name;
-		//};
-
-		/*用于鉴别源地址。其值通过单向MD5 hash计算得出，表示如下：
-		AuthenticatorSource = MD5（Source_Addr + 9 字节的0 + shared	secret + timestamp）
-		Shared secret 由中国移动与源地址实体事先商定，
-		timestamp格式为：MMDDHHMMSS，即月日时分秒，10位。*/
-		//std::string& getPass() { 
-		//	return pass;
-		//};
-
-
-
-
-
 	private:
-		//bytes source_addr;//源地址，此处为SP_Id，即SP的企业代码。
-		//std::string pass;
 		/*用于鉴别源地址。其值通过单向MD5 hash计算得出，表示如下：
 		AuthenticatorSource = MD5（Source_Addr + 9 字节的0 + shared	secret + timestamp）
 		Shared secret 由中国移动与源地址实体事先商定，

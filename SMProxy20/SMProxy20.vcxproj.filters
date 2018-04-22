@@ -60,6 +60,24 @@
     <ClInclude Include="CResovle.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="SGIP12Bind.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SGIP12Head.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SGIP12Submit.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SMGP303Head.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SMGP303Login.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SMGP303Submit.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
