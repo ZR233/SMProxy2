@@ -7,10 +7,10 @@ Description:公用信息接口
 
 #include <string>
 #include <vector>
-#include "IHead.hpp"
+#include "Field.hpp"
+
+
 namespace smproxy {
-
-
 	class IBaseParam
 	{
 	protected:
@@ -19,7 +19,7 @@ namespace smproxy {
 		FieldStr sp_ID_;
 		FieldStr serial_numb_;
 		FieldInt int_serial_numb_;
-
+		bytes buf_;
 	public:
 		IBaseParam():
 			ISMG_ID_(6,"0"),
@@ -55,6 +55,11 @@ namespace smproxy {
 		void setSerialNumb(std::string serial_numb) {
 			this->serial_numb_ = serial_numb;
 		};
+
+		//取缓存
+		const bytes& getBuf() { return buf_; };
+
+
 
 		virtual ~IBaseParam() {};
 	};

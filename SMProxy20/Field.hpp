@@ -4,7 +4,7 @@
 #include "Utils.hpp"
 #include <boost\shared_ptr.hpp>
 #include <boost\make_shared.hpp>
-
+#include "exception.hpp"
 /*************************************************
 Author:zr
 Date:2018-03-15
@@ -31,7 +31,7 @@ namespace smproxy
 		};
 		virtual ~Field() {};
 		virtual void read(bytes::iterator &iter) = 0;
-		virtual bytes& toBytes() = 0;
+		virtual bytes toBytes() = 0;
 		Field& setSize(int size)
 		{
 			this->size = size;
@@ -72,7 +72,7 @@ namespace smproxy
 		FieldStr& set(std::string str)
 		{
 			if (str.size() > size)
-				BOOST_THROW_EXCEPTION(smproxy::exception("Field超长"));
+				BOOST_THROW_EXCEPTION(exception("Field超长"));
 			this->str_ = str;
 			this->str_.resize(size);
 			return *this;
@@ -94,7 +94,7 @@ namespace smproxy
 			str_ = str_.c_str();
 			iter += size;
 		}
-		bytes& toBytes() override
+		bytes toBytes() override
 		{
 			temp.assign(str_.begin(), str_.end());
 			temp.resize(size);
@@ -104,6 +104,68 @@ namespace smproxy
 		std::string str_;
 		bytes temp;
 	};
+	class FieldBytes :
+		public Field
+	{
+	public:
+		FieldBytes() :
+			Field(1)
+		{
+		}
+		FieldBytes(int size) :
+			Field(size)
+		{
+		}
+		FieldBytes(int size, const char value) :
+			Field(size)
+		{
+			value_.assign(size,value);
+		}
+		~FieldBytes() {};
+		FieldBytes& operator =(bytes& value)//赋值运算符
+		{
+			set(value);
+			return *this;
+		}
+		FieldBytes& setSize(int size)
+		{
+			this->size = size;
+			return *this;
+		}
+
+		FieldBytes& set(bytes& value)
+		{
+			if (value.size() > size)
+				BOOST_THROW_EXCEPTION(exception("Field超长"));
+			this->value_ = value;
+			this->value_.resize(size);
+			return *this;
+		}
+
+		FieldBytes& set(int size, const char value)
+		{
+			this->size = size;
+			value_.assign(size, value);
+			return *this;
+		}
+		bytes& get()
+		{
+			return value_;
+		}
+		void read(bytes::iterator &iter) override
+		{
+			value_.assign(iter, iter + size);
+			iter += size;
+		}
+		bytes toBytes() override
+		{
+			value_.resize(size);
+			return value_;
+		}
+	protected:
+		bytes value_;
+		bytes temp;
+	};//FieldBytes
 	//Integer
 	class FieldInt :
 		public Field
@@ -181,7 +243,7 @@ namespace smproxy
 			}
 			iter += size;
 		}
-		bytes& toBytes() override
+		bytes toBytes() override
 		{
 			temp.assign(size, 0);
 			switch (size)
@@ -208,7 +270,7 @@ namespace smproxy
 			}
 			break;
 			default:
-				throw smproxy::exception("错误的数值长度");
+				BOOST_THROW_EXCEPTION(exception("错误的数值长度"));
 			}
 			return temp;
 		}
@@ -268,7 +330,7 @@ namespace smproxy
 				len_ = 21;
 				break;
 			default:
-				BOOST_THROW_EXCEPTION( smproxy::exception("错误的TLV可选参数标签"));
+				BOOST_THROW_EXCEPTION(exception("错误的TLV可选参数标签"));
 				break;
 			}
 			size = 4 + len_;
@@ -299,7 +361,7 @@ namespace smproxy
 			setTag(tag_, len_);
 			value_ptr_->read(iter);
 		}
-		bytes& toBytes() override
+		bytes toBytes() override
 		{
 			temp.assign(4, 0);
 			auto temp_tag = htons(tag_);
@@ -326,10 +388,6 @@ namespace smproxy
 		void pushField(Field &field)
 		{
 			field_squ.push_back(&field);
-
-
-			auto temp = field.toBytes();
-			bytes_.insert(bytes_.end(), temp.begin(), temp.end());
 		}
 		void pushBytes(bytes &bytes_)
 		{
@@ -337,9 +395,11 @@ namespace smproxy
 		}
 		const std::vector<uint8_t>& to_bytes()
 		{
-			for (auto field : field_squ)
+			bytes_.clear();
+			for (Field* field : field_squ)
 			{
-				bytes_.insert(bytes_.end(), field->toBytes().begin(), field->toBytes().end());
+				auto temp = field->toBytes();
+				bytes_.insert(bytes_.end(), temp.begin(), temp.end());
 			}
 			return  bytes_;
 		}

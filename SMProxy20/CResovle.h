@@ -1,31 +1,31 @@
 ﻿#pragma once
-#include "Defines.h"
+#include "SMProxy2.h"
 #include "IBaseParam.hpp"
 #include <boost\shared_ptr.hpp>
 
 #include "IHead.hpp"
 #include "ISubmit.hpp"
-#include "IDeliver.hpp"
+//#include "IDeliver.hpp"
 
 
 #include "CMPP20Connect.hpp"
 #include "CMPP20Submit.hpp"
-#include "CMPP20Deliver.hpp"
-
-
-#include "SGIP12Deliver.hpp"
-#include "SGIP12Report.hpp"
-#include "SGIP12Submit.hpp"
-#include "SGIP12Bind.hpp"
-
-#include "SMGP303Login.hpp"
-#include "SMGP303Submit.hpp"
-#include "SMGP303Deliver.hpp"
-
-
-#include "SGIP12Resp.hpp"
-#include "CMPP20Resp.hpp"
-#include "SMGP303Resp.hpp"
+//#include "CMPP20Deliver.hpp"
+//
+//
+//#include "SGIP12Deliver.hpp"
+//#include "SGIP12Report.hpp"
+//#include "SGIP12Submit.hpp"
+//#include "SGIP12Bind.hpp"
+//
+//#include "SMGP303Login.hpp"
+//#include "SMGP303Submit.hpp"
+//#include "SMGP303Deliver.hpp"
+//
+//
+//#include "SGIP12Resp.hpp"
+//#include "CMPP20Resp.hpp"
+//#include "SMGP303Resp.hpp"
 /*************************************************
 Author:zr
 Date:2018-01-18
@@ -54,13 +54,20 @@ namespace smproxy {
 			Report = 5, ReportResp = 0x80000005,
 			ActiveTest = 8, ActiveTestResp = 0x80000008
 		};
-		const bytes& submit(
+		bytes submit(
 			int& serial_numb,
 			char* src_ID,
 			std::vector<std::string> &user_num,
 			std::vector<uint8_t>& message_content
 		);
-		void recvHead(std::vector<uint8_t> &buf)
+		bytes connect(
+			int& serial_numb,
+			const char* password,
+			int login_type
+		);
+
+
+		/*void recvHead(std::vector<uint8_t> &buf)
 		{
 			ch->recvHead(buf);
 			switch (protocol_)
@@ -184,15 +191,15 @@ namespace smproxy {
 			SN2 = ch->getSN2();
 			SN3 = ch->getIntSerialNumb();
 			serial_numb = ch->getSerialNumb();
-		}
-		void recvBody(std::vector<uint8_t> &buf)
+		}*/
+		/*void recvBody(std::vector<uint8_t> &buf)
 		{
 			switch (cmd_id)
 			{
 			case Bind://收到Bind请求
 				cb->recvBind(buf);
 				username = cb->getName();
-				password = cb->getPass();
+				password_ = cb->getPass();
 				time_stamp = cb->getTimestamp();
 				break;
 			case BindResp://收到Bind回应
@@ -250,7 +257,7 @@ namespace smproxy {
 				k.add("[解析字符串]");
 				throw k;
 			}
-		}
+		}*/
 		//指令号 1：连接 2：断开 3：提交信息 4:上行短信 5:短信报告 8:心跳检测
 		Ecommand getCmdId() {
 			return cmd_id;
@@ -258,8 +265,8 @@ namespace smproxy {
 		//用户名
 		std::string& getUsr() { return username; };
 		//密码
-		std::string& getPas() {
-			return password;
+		std::string& getPassWord() {
+			return password_;
 		};
 		//获取时间戳
 		unsigned int& getTS() {
@@ -326,6 +333,13 @@ namespace smproxy {
 		std::string getExtnum() {
 			return extnum_;
 		};
+
+		void setSpId(std::string sp_id) {
+			sp_ID_ = sp_id;
+		}
+		std::string getSpId() {
+			return sp_ID_;
+		};
 	private:
 		std::string msg_id;
 		std::string msg_id_this_;
@@ -333,7 +347,7 @@ namespace smproxy {
 		//指令号 1：连接 2：断开 3：提交信息 4:上行短信 5:短信报告 8:心跳检测
 		Ecommand cmd_id;
 		std::string username;
-		std::string password;
+		std::string password_;
 		unsigned int time_stamp;
 		unsigned int SN1;
 		unsigned int SN2;
@@ -362,12 +376,21 @@ namespace smproxy {
 
 		std::string extnum_;//扩展码
 
+
+		std::string sp_ID_;
 		//接口
 		boost::shared_ptr<IHead> hd;
 		boost::shared_ptr<IBind> bd;
+		//IHead* hd;
+		//IBind* bd;
 		boost::shared_ptr<ISubmit> sb;
-		boost::shared_ptr<IDeliver> dlv;
-		boost::shared_ptr<IReport> rp;
+		//boost::shared_ptr<IDeliver> dlv;
+		//boost::shared_ptr<IReport> rp;
+
+		CMPP20Head cmpphd;
+		CMPP20Connect cmppbd;
+
+		bytes buf_;
 	};
 
 }//namespace smproxy

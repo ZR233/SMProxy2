@@ -7,7 +7,7 @@ Description:消息体接口
 
 #include "Field.hpp"
 #include "IBaseParam.hpp"
-
+#include "exception.hpp"
 namespace smproxy {
 
 
@@ -30,7 +30,7 @@ namespace smproxy {
 		* \param msg 短信内容
 		* \return 发送缓存字符串
 		*/
-		virtual	const bytes& submit(
+		virtual bytes submit(
 			char* msg_src,
 			std::vector<std::string> &user_num,
 			int msg_fmt,
@@ -47,11 +47,6 @@ namespace smproxy {
 		//@buf 待解析数据
 		//@buf_loc 解析起始位置迭代器
 		virtual void recvSubmit(bytes &buf, bytes::iterator buf_loc) = 0;
-
-		const bytes& getBuf()
-		{
-			return buf_;
-		}
 
 
 		std::vector<std::string>& getPhNums() { return dest_term_IDs_; };
@@ -93,8 +88,7 @@ namespace smproxy {
 		FieldInt message_length_;
 		//短信内容
 		std::vector<uint8_t> message_content_;
-		//数据串
-		std::vector<uint8_t> buf_;
+
 
 
 		//----------不常用参数------------   

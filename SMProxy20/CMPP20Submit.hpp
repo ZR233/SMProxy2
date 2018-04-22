@@ -20,7 +20,7 @@ namespace smproxy {
 	public:
 		CMPP20Submit() :ISubmit()
 		{
-			body_.pushField(msg_id_.set(8,0));
+			body_.pushField(msg_id_.set(8,""));
 			body_.pushField(pk_total_.setSize(1));
 			body_.pushField(pk_number_.setSize(1));
 			body_.pushField(report_flag_.set(1,1));
@@ -142,7 +142,7 @@ namespace smproxy {
 			//}
 		}
 
-		const bytes& submit(
+		bytes submit(
 			char* src_ID,
 			std::vector<std::string> &user_num,
 			int msg_fmt,

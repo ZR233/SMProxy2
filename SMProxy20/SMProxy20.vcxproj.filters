@@ -36,115 +36,22 @@
     <ClInclude Include="SMProxy2.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CMPP20ActiveTestResp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="CMPP20Connect.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CMPP20ConnectResp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CMPP20Deliver.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CMPP20DeliverResp.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CMPP20Head.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CMPP20Resp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CMPP20SubmitResp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CMPP20TerminateResp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="IBind.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="IDeliver.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="IHead.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="IMsg.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="IReport.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="IResp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="IRespAll.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="ISubmit.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="IUnBind.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SGIP12Bind.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SGIP12Deliver.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SGIP12Head.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SGIP12Report.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SGIP12Resp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SGIP12Submit.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SMGP303ActiveTestResp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SMGP303Deliver.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SMGP303DeliverResp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SMGP303ExitResp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SMGP303Head.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SMGP303Login.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SMGP303LoginResp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SMGP303Resp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SMGP303Submit.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SMGP303SubmitResp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="CMPP20Submit.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CSubmit.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Defines.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="IBaseParam.hpp">
@@ -165,9 +72,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MD5.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CSubmit.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CResovle.cpp">

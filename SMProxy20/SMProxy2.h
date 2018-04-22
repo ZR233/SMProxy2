@@ -8,7 +8,10 @@
 #define SMPROXY2DLL extern "C" _declspec(dllexport) 
 #endif
 
-#include "Defines.h"
+enum Protocol
+{
+	SGIP12 = 1, CMPP20, SMGP303
+};
 
 
 SMPROXY2DLL int Sum(int a, int b);

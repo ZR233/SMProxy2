@@ -31,8 +31,9 @@ namespace smproxy {
 		//@msgL	消息总长度(含消息头及消息体)
 		//@CID	命令或响应类型
 		//@SN	消息流水号,顺序累加,步长为1,循环使用（一对请求和应答消息的流水号必须相同）
-		bytes& header(uint32_t total_len, uint32_t  com_ID, std::string SN) override
+		bytes header(uint32_t total_len, uint32_t  com_ID, std::string SN) override
 		{
+			buf_.clear();
 			total_len_ = total_len;
 			cmdID_ = com_ID;
 			serial_numb_ = SN;
