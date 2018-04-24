@@ -1,64 +1,47 @@
-#pragma once
+ï»¿#pragma once
 /*************************************************
 Author:zr
 Date:2018-02-22
 Description:SGIP1.2 Bind
 **************************************************/
-
-
 #include "IBind.hpp"
-#include "SGIP12Head.hpp"
 
-class SGIP12Bind :
-	public IBind
-{
-public:
-	SGIP12Bind() :IBind(1) {
-		setHeadType(&hd_);
-	}
-	virtual ~SGIP12Bind(){};
-	bytes Binder(std::string log_id, std::string pass_word) override
-	{
-		if ((log_id.size() >16) || (pass_word.size() >16))
-		{
-			throw std::runtime_error("bindÊ±ÓÃ»§ÃûÃÜÂë¹ı³¤");
-		}
-		buf_.clear();
-		buf_.push_back(log_type_);
-		log_id.resize(16);
-		buf_.insert(buf_.end(), log_id.begin(), log_id.end());
-		pass_word.resize(16);
-		buf_.insert(buf_.end(), pass_word.begin(), pass_word.end());
+namespace smproxy {
 
-		for (int i = 0; i < 8; i++)
-		{
-			buf_.push_back('\0');
-		}
-		return buf_;
-	}
-	void recvBind(bytes &buf)
+
+	class SGIP12Bind :
+		public IBind
 	{
-		int pt = 20;
-		//¿½±´µÇÂ½ÀàĞÍ
-		log_type_ = buf[pt];
-		pt += 1;
-		//¿½±´ÓÃ»§Ãû
-		log_name_.assign(16, 0);
-		for (int i = 0; i < log_name_.size(); i++)
-		{
-			log_name_[i] = buf[i + pt];
+	private:
+		Buffer body_;
+	public:
+		SGIP12Bind(){
+			body_.pushField(login_type_.set(1, 1));
+			body_.pushField(user_name_.set(16, ""));
+			body_.pushField(password_.set(16, ""));
 		}
-		pt += 16;
-		log_name_ = log_name_.c_str();
-		//¿½±´ÃÜÂë
-		log_pass_.assign(16, 0);
-		for (int i = 0; i < log_pass_.size(); i++)
+		virtual ~SGIP12Bind() {};
+		bytes Binder(std::string log_id, std::string pass_word) override
 		{
-			log_pass_[i] = buf[i + pt];
+			if ((log_id.size() > 16) || (pass_word.size() > 16))
+			{
+				BOOST_THROW_EXCEPTION(exception("bindæ—¶ç”¨æˆ·åå¯†ç è¿‡é•¿"));
+			}
+			buf_ = body_.to_bytes();
+
+			for (int i = 0; i < 8; i++)
+			{
+				buf_.push_back('\0');
+			}
+			return buf_;
 		}
-		pt += 16;
-		log_pass_ = log_pass_.c_str();
-	}
-protected:
-	SGIP12Head hd_;
-};
+		void recvBind(bytes& buf, bytes::iterator buf_loc)override
+		{
+			if (buf.size() < 61)
+			{
+				BOOST_THROW_EXCEPTION(exception("connectå­—ç¬¦ä¸²é•¿åº¦é”™è¯¯", 5));
+			}
+			body_.reslov(buf, buf_loc);
+		}
+	};
+}//smproxy

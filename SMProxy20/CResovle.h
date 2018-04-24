@@ -5,6 +5,7 @@
 
 #include "IHead.hpp"
 #include "ISubmit.hpp"
+#include "IBind.hpp"
 //#include "IDeliver.hpp"
 
 
@@ -253,7 +254,7 @@ namespace smproxy {
 			}
 		}*/
 		//指令号 1：连接 2：断开 3：提交信息 4:上行短信 5:短信报告 8:心跳检测
-		Ecommand getCmdId() {
+		Command getCmdId() {
 			return cmd_id;
 		};
 		//用户名
@@ -339,7 +340,7 @@ namespace smproxy {
 		std::string msg_id_this_;
 		uint8_t result;
 		//指令号 1：连接 2：断开 3：提交信息 4:上行短信 5:短信报告 8:心跳检测
-		Ecommand cmd_id;
+		Command cmd_id;
 		std::string username;
 		std::string password_;
 		unsigned int time_stamp;

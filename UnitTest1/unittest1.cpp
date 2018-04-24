@@ -5,6 +5,7 @@
 #include <boost/date_time/posix_time/conversion.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "../SMProxy20/Utils.hpp"
+#include <vector>
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UnitTest1
@@ -76,6 +77,20 @@ namespace UnitTest1
 			Assert::AreEqual(str1, str);
 
 		}
+		TEST_METHOD(TestMethod4)
+		{
+			// TODO: 在此输入测试代码
+			std::vector<int> str;
+			str.push_back(1);
+			auto iter = str.begin();
 
+
+			int a = 0;
+			if (str.end() == str.end())
+			{
+				int a = 1;
+			}
+			Assert::AreEqual(1, a);
+		}
 	};
 }

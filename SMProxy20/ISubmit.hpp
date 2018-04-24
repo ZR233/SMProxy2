@@ -31,17 +31,14 @@ namespace smproxy {
 		* \return 发送缓存字符串
 		*/
 		virtual bytes submit(
-			char* msg_src,
+			std::string msg_src,
 			std::vector<std::string> &user_num,
 			int msg_fmt,
 			std::vector<uint8_t>& message_content,
 			int pk_total = 1,
 			int pk_number = 1,
 			int tp_pid = 0,
-			int tp_udhi = 0,
-			int same_msg_total = 1,
-			int same_msg_num = 1,
-			int long_msg_id = 0
+			int tp_udhi = 0
 		) = 0;
 		//接收submit
 		//@buf 待解析数据
@@ -69,6 +66,12 @@ namespace smproxy {
 		void setPk_number(uint8_t pk_number) { pk_number_ = pk_number; };
 		void setMsg_src_(std::string msg_src) { src_ID_ = msg_src; };
 		std::string getMsg_src_() { return src_ID_.get(); };
+
+		void setValidTime(std::string valid_time) { valid_time_ = valid_time; };
+		std::string getValidTime() { return valid_time_.get(); };
+
+		void setAtTime(std::string at_time) { at_time_ = at_time; };
+		std::string getAtTime() { return at_time_.get(); };
 	protected:
 		//------------常用参数---------------
 
@@ -100,7 +103,7 @@ namespace smproxy {
 		FieldStr fee_number_;			//	被计费用户的号码
 		FieldStr fee_type_;				//	资费类别
 		FieldStr fee_code_;				//	资费代码（以分为单位）
-		FieldStr valid_time_;				//	存活有效期，参见SMPP3.3
+		FieldStr valid_time_;			//	存活有效期，参见SMPP3.3
 		FieldStr at_time_;				//	定时发送时间，参见SMPP3.3 
 
 		FieldStr charge_number_;			//付费号码，手机号码前加“86”国别标志；当且仅当群发且对用户收费时为空；

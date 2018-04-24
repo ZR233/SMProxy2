@@ -5,6 +5,8 @@
 #include <boost\shared_ptr.hpp>
 #include <boost\make_shared.hpp>
 #include "exception.hpp"
+#include <map>
+#include <tuple>
 /*************************************************
 Author:zr
 Date:2018-03-15
@@ -280,103 +282,76 @@ namespace smproxy
 	};
 
 	//TLV
-	class FieldTLV :
+	class FieldTLVs :
 		public Field
 	{
 	public:
-		FieldTLV(uint16_t tag, uint16_t len = 0) :
-			Field(4 + len)
+		FieldTLVs() :
+			Field(4)
 		{
-			setTag(tag,len);
 		}
-		~FieldTLV() {};
+		~FieldTLVs() {};
 
-		void setTag(uint16_t tag, uint16_t len = 0)
+		void addTLV(uint16_t tag, Field* value)
 		{
-			this->tag_ = tag;
-			switch (tag_)
+			values_[tag] = value;
+		}
+		void read(bytes& buf, bytes::iterator& iter)
+		{
+			while (true)
 			{
-			case 0x0001://TP_pid
-			case 0x0002://TP_udhi
-			case 0x0004://ChargeUserType
-			case 0x0005://ChargeTermType
-			case 0x0007://DestTermType
-			case 0x0009://PkTotal
-			case 0x000A://PkNumber
-			case 0x000B://SubmitMsgType
-			case 0x000C://SPDealReslt
-			case 0x000D://SrcTermType
-			case 0x000F://NodesCount
-			case 0x0011://SrcType
-				value_ptr_ = boost::make_shared<FieldInt>(FieldInt(1));
-				len_ = 1;
-				break;
-			case 0x0003://LinkID
-				value_ptr_ = boost::make_shared<FieldStr>(FieldStr(20));
-				len_ = 20;
-				break;
-			case 0x0006://ChargeTermPseudo
-			case 0x0008://DestTermPseudo
-			case 0x000E://SrcTermPseudo
-				value_ptr_ = boost::make_shared<FieldStr>(FieldStr(len));
-				len_ = len;
-				break;
-			case 0x0010://MsgSrc
-				value_ptr_ = boost::make_shared<FieldStr>(FieldStr(8));
-				len_ = 8;
-				break;
-			case 0x0012://MServiceID
-				value_ptr_ = boost::make_shared<FieldStr>(FieldStr(21));
-				len_ = 21;
-				break;
-			default:
-				BOOST_THROW_EXCEPTION(exception("错误的TLV可选参数标签"));
-				break;
+				if (iter == buf.end())
+					return;
+				if (iter + 1 == buf.end())
+					return;
+				bytes temp;
+				uint16_t tag;
+				temp.assign(iter, iter + 2);
+				memcpy_s(&tag, 2, &(temp[0]), 2);
+				tag = ntohs(tag);
+				if (tag<1||tag>0x0012)
+					BOOST_THROW_EXCEPTION(exception("错误的TLV tag"));
+				iter += 2;
+				temp.assign(iter, iter + 2);
+				uint16_t len;
+				memcpy_s(&len, 2, &(temp[0]), 2);
+				len = ntohs(len);
+				if (len == 0 || len > 60000)
+				{
+					BOOST_THROW_EXCEPTION(exception("错误的数值长度"));
+				}
+				iter += 2;
+				auto lv = values_[tag];
+				lv->setSize(len);
+				lv->read(iter);
 			}
-			size = 4 + len_;
-		}
-		boost::shared_ptr< Field> Val()
-		{
-			return value_ptr_;
-		}
-		uint16_t getTag()
-		{
-			return tag_;
-		}
-		void read(bytes::iterator &iter) override
-		{
-			bytes temp;
-			temp.assign(iter, iter + 2);
-			memcpy_s(&tag_, 2, &(temp[0]), 2);
-			tag_ = ntohs(tag_);
-			iter += 2;
-			temp.assign(iter, iter + 2);
-			memcpy_s(&len_, 2, &(temp[0]), 2);
-			len_ = ntohs(len_);
-			if (len_  == 0 || len_ > 60000)
-			{
-				BOOST_THROW_EXCEPTION(exception("错误的数值长度"));
-			}
-			iter += 2;
-			setTag(tag_, len_);
-			value_ptr_->read(iter);
+			
 		}
 		bytes toBytes() override
 		{
-			temp.assign(4, 0);
-			auto temp_tag = htons(tag_);
-			memcpy_s(&(temp[0]), 2, &temp_tag, 2);
-			auto temp_len = htons(len_);
-			memcpy_s(&(temp[2]), 2, &temp_len, 2);
-			auto temp_value = value_ptr_->toBytes();
-			temp.insert(temp.end(), temp_value.begin(), temp_value.end());
-			return temp;
+			auto it = values_.begin();
+			bytes buf;
+			while (it != values_.end())
+			{
+				bytes temp;
+				temp.assign(4, 0);
+				auto temp_tag = htons(it->first);
+				memcpy_s(&(temp[0]), 2, &temp_tag, 2);
+				auto temp_len = htons(uint16_t( it->second->size));
+				memcpy_s(&(temp[2]), 2, &temp_len, 2);
+				buf.insert(buf.end(), temp.begin(), temp.end());
+				temp = it->second->toBytes();
+				buf.insert(buf.end(), temp.begin(), temp.end());
+
+				it++;
+			}
+			
+			return buf;
 		}
 	protected:
-		uint16_t tag_;
-		uint16_t len_;
-		boost::shared_ptr< Field> value_ptr_;
-		bytes temp;
+
+		//tag:(len, value_ptr)
+		std::map<uint16_t, Field*> values_;
 	};
 	class Buffer
 	{

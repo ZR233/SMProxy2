@@ -18,9 +18,8 @@ namespace smproxy {
 		Buffer body_;
 	public:
 		CMPP20Connect(){
-			//2.0
 			password_.setSize(34);
-			body_.pushField(sp_ID_.set(6, "0"));
+			body_.pushField(user_name_.set(6, "0"));
 			body_.pushField(authenticator_source_.set(16, '\0'));
 			body_.pushField(version_.set(1, 0x20));
 			body_.pushField(timestamp_.set(4, 0));
@@ -30,9 +29,9 @@ namespace smproxy {
 		// 生成connect
 		// @sp_id:			用户名
 		// @shard_secret:	密码
-		bytes Binder(std::string sp_id, std::string shared_secret) override
+		bytes Binder(std::string log_id, std::string shared_secret) override
 		{
-			if (sp_id.size() > 6)
+			if (log_id.size() > 6)
 			{
 				BOOST_THROW_EXCEPTION(exception("用户名超过6位",1));
 			}
@@ -41,9 +40,9 @@ namespace smproxy {
 
 			bytes temp;
 			//存SP ID
-			sp_ID_ = sp_id;
+			user_name_ = log_id;
 
-			std::string md5_s = sp_id;
+			std::string md5_s = log_id;
 			for (size_t i = 0; i < 9; i++)
 			{
 				md5_s.push_back(0);
@@ -84,7 +83,6 @@ namespace smproxy {
 				BOOST_THROW_EXCEPTION(exception("connect字符串长度错误", 1));
 			}
 			body_.reslov(buf, buf_loc);
-
 			std::string temp_pass;
 			//存 AS  将密码存为16进制字符串
 			auto authenticator_source = authenticator_source_.get();

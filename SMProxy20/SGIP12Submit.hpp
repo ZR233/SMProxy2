@@ -1,323 +1,350 @@
-#pragma once
+ï»¿#pragma once
 #include "ISubmit.hpp"
-#include "SGIP12Head.hpp"
 
-class SGIP12Submit :
-	public ISubmit
-{
-public:
-	SGIP12Submit() :ISubmit(3) {
-		setHeadType(&hd);
-	}
+namespace smproxy{
 
-	bytes submit(std::vector<std::string> &user_num, std::string &msg) override
+	class SGIP12Submit :
+		public ISubmit
 	{
-		int pt = 20;
-		buf_.clear();
-		//¿½±´SP½ÓÈëºÅ 
-		sp_number_.resize(21);
-		buf_.assign(sp_number_.begin(), sp_number_.end());
-		pt += 21;
-		
-		//¿½±´¸¶·ÑºÅÂë
-		charge_number_.resize(21);
-		buf_.insert(buf_.end(), charge_number_.begin(), charge_number_.end());
-		pt += 21;
-		//¿½±´½ÓÊÕ¶ÌÏûÏ¢µÄÊÖ»úºÅÊıÁ¿
-		dest_total_ = user_num.size();
-		buf_.push_back(dest_total_);
-		pt += 1;
-		//¿½±´½ÓÊÕ¶ÌÏûÏ¢µÄÊÖ»úºÅ
-		for (int i = 0; i < user_num.size(); i++)
+	private:
+		Buffer body_;
+	public:
+		SGIP12Submit() {
+			body_.pushField(msg_id_.set(8, ""));
+		}
+
+		bytes submit(
+			std::string src_ID,
+			std::vector<std::string> &user_num,
+			int msg_fmt,
+			std::vector<uint8_t>& message_content,
+			int pk_total = 0,
+			int pk_number = 0,
+			int tp_pid = 0,
+			int tp_udhi = 0,
+			int same_msg_total = 0,
+			int same_msg_num = 0,
+			int long_msg_id = 0
+		) override
 		{
-			bytes temp_ph;
-			temp_ph.assign(user_num[i].begin(), user_num[i].end());
-			temp_ph.resize(21);
-			buf_.insert(buf_.end(), temp_ph.begin(), temp_ph.end());
+			src_ID_.set(src_ID);
+			msg_fmt_ = msg_fmt;
+			pk_total_ = pk_total;
+			tp_pid_ = tp_pid;
+			tp_udhi_ = tp_udhi;
+			same_msg_total_ = same_msg_total;
+			same_msg_num_ = same_msg_num;
+			long_msg_id_ = long_msg_id;
+			dest_total_ = user_num.size();
+			message_length_ = message_content.size();
+
+			int pt = 20;
+			buf_.clear();
+			//æ‹·è´SPæ¥å…¥å· 
+			sp_number_.resize(21);
+			buf_.assign(sp_number_.begin(), sp_number_.end());
 			pt += 21;
-		}
-		//¿½±´ÆóÒµ´úÂë
-		SPID.resize(5);
-		buf_.insert(buf_.end(), SPID.begin(), SPID.end());
-		pt += 5;
-		//¿½±´ÒµÎñ´úÂë£¬ÓÉSP¶¨Òå
-		service_id_.resize(10);
-		buf_.insert(buf_.end(), service_id_.begin(), service_id_.end());
-		pt += 10;
 
-		//¿½±´¼Æ·ÑÀàĞÍ
-		buf_.push_back((unsigned char)std::stoi(fee_type_));
-		pt += 1;
-
-		//¿½±´È¡Öµ·¶Î§0-99999£¬¸ÃÌõ¶ÌÏûÏ¢µÄÊÕ·ÑÖµ£¬µ¥Î»Îª·Ö£¬ÓÉSP¶¨Òå
-		fee_value_.resize(6);
-		buf_.insert(buf_.end(), fee_value_.begin(), fee_value_.end());
-		pt += 6;
-		//¿½±´È¡Öµ·¶Î§0-99999£¬ÔùËÍÓÃ»§µÄ»°·Ñ£¬µ¥Î»Îª·Ö£¬ÓÉSP¶¨Òå£¬ÌØÖ¸ÓÉSPÏòÓÃ»§·¢ËÍ¹ã¸æÊ±µÄÔùËÍ»°·Ñ
-		given_value_.resize(6);
-		buf_.insert(buf_.end(), given_value_.begin(), given_value_.end());
-		pt += 6;
-
-		//¿½±´
-		buf_.push_back(agent_flag_);
-		pt += 1;
-		//¿½±´
-		buf_.push_back(morelateto_MT_flag_);
-		pt += 1;
-		//¿½±´
-		buf_.push_back(msg_level_);
-		pt += 1;
-		//¿½±´
-		valid_time_.resize(16);
-		buf_.insert(buf_.end(), valid_time_.begin(), valid_time_.end());
-		pt += 16;
-		//¿½±´
-		at_time_.resize(16);
-		buf_.insert(buf_.end(), at_time_.begin(), at_time_.end());
-		pt += 16;
-		//¿½±´
-		buf_.push_back(report_flag_);
-		pt += 1;
-		//¿½±´
-		buf_.push_back(tp_pid_);
-		pt += 1;
-		//¿½±´
-		buf_.push_back(tp_udhi_);
-		pt += 1;
-		//¿½±´
-		buf_.push_back(msg_fmt_);
-		pt += 1;
-		//¿½±´
-		buf_.push_back(message_type_);
-		pt += 1;
-		//¿½±´¶ÌĞÅÄÚÈİ³¤¶È
-		uint8_t temp_char_message_length[4];
-		unsigned int temp_ml = htonl(msg.size());
-		memcpy(temp_char_message_length, &temp_ml, 4);
-		buf_.insert(buf_.end(), &temp_char_message_length[0], &temp_char_message_length[4]);
-		pt += 4;
-		//¿½±´¶ÌĞÅÄÚÈİ
-		buf_.insert(buf_.end(), msg.begin(), msg.end());
-
-
-		for (size_t i = 0; i < 8; i++)
-		{
-			buf_.push_back(0);
-		}
-		pt += (msg.size());
-		pt += 8;
-
-
-		return buf_;
-	}
-
-	void recvSubmit(bytes &buf) override {
-		hd.recvHead(buf);
-		msg_id_this = hd.getSerialNumb();
-		msg_id = hd.getSerialNumb();
-		if (buf.size() < (20 + 21 + 21 + 1))
-		{
-			throw std::runtime_error("submit ÏûÏ¢³¤¶È´íÎó");
-		}
-		int pt = 20;
-
-		//¿½±´SP½ÓÈëºÅ 
-		sp_number_.assign(21, 0);
-		for (int i = 0; i < 21; i++)
-		{
-			sp_number_[i] = buf[i + pt];
-		}
-		sp_number_ = sp_number_.c_str();
-		pt += 21;
-		extnum_ = sp_number_;
-		//¿½±´¸¶·ÑºÅÂë
-		charge_number_.assign(21, 0);
-		for (int i = 0; i < 21; i++)
-		{
-			charge_number_[i] = buf[i + pt];
-		}
-		charge_number_ = charge_number_.c_str();
-		pt += 21;
-
-		//¿½±´½ÓÊÕ¶ÌÏûÏ¢µÄÊÖ»úºÅÊıÁ¿
-		dest_total_ = buf[pt];
-		pt += 1;
-		num_.clear();
-		for (uint8_t i = 0; i < dest_total_; i++)
-		{
-			char temp[21] = { 0 };
-			for (int j = 0; j < 21; j++)
+			//æ‹·è´ä»˜è´¹å·ç 
+			charge_number_.resize(21);
+			buf_.insert(buf_.end(), charge_number_.begin(), charge_number_.end());
+			pt += 21;
+			//æ‹·è´æ¥æ”¶çŸ­æ¶ˆæ¯çš„æ‰‹æœºå·æ•°é‡
+			dest_total_ = user_num.size();
+			buf_.push_back(dest_total_);
+			pt += 1;
+			//æ‹·è´æ¥æ”¶çŸ­æ¶ˆæ¯çš„æ‰‹æœºå·
+			for (int i = 0; i < user_num.size(); i++)
 			{
-				temp[j] = buf[pt + j];
-
+				bytes temp_ph;
+				temp_ph.assign(user_num[i].begin(), user_num[i].end());
+				temp_ph.resize(21);
+				buf_.insert(buf_.end(), temp_ph.begin(), temp_ph.end());
+				pt += 21;
 			}
-			std::string tempstr(temp);
-			tempstr = tempstr.c_str();
-			num_.push_back(tempstr);
-			pt += 21;
-		}
+			//æ‹·è´ä¼ä¸šä»£ç 
+			SPID.resize(5);
+			buf_.insert(buf_.end(), SPID.begin(), SPID.end());
+			pt += 5;
+			//æ‹·è´ä¸šåŠ¡ä»£ç ï¼Œç”±SPå®šä¹‰
+			service_id_.resize(10);
+			buf_.insert(buf_.end(), service_id_.begin(), service_id_.end());
+			pt += 10;
 
-		//¿½±´ÆóÒµ´úÂë
-		SPID.assign(5, 0);
-		for (int i = 0; i < 5; i++)
-		{
-			SPID[i] = buf[i + pt];
-		}
-		SPID = SPID.c_str();
-		pt += 5;
-		//¿½±´ÒµÎñ´úÂë£¬ÓÉSP¶¨Òå
-		service_type_.assign(10, 0);
-		for (int i = 0; i < 10; i++)
-		{
-			service_type_[i] = buf[i + pt];
-		}
-		service_type_ = service_type_.c_str();
-		pt += 10;
+			//æ‹·è´è®¡è´¹ç±»å‹
+			buf_.push_back((unsigned char)std::stoi(fee_type_));
+			pt += 1;
 
-		//¿½±´¼Æ·ÑÀàĞÍ
-		fee_type_ = std::to_string(int(buf[pt]));
-		pt += 1;
+			//æ‹·è´å–å€¼èŒƒå›´0-99999ï¼Œè¯¥æ¡çŸ­æ¶ˆæ¯çš„æ”¶è´¹å€¼ï¼Œå•ä½ä¸ºåˆ†ï¼Œç”±SPå®šä¹‰
+			fee_value_.resize(6);
+			buf_.insert(buf_.end(), fee_value_.begin(), fee_value_.end());
+			pt += 6;
+			//æ‹·è´å–å€¼èŒƒå›´0-99999ï¼Œèµ é€ç”¨æˆ·çš„è¯è´¹ï¼Œå•ä½ä¸ºåˆ†ï¼Œç”±SPå®šä¹‰ï¼Œç‰¹æŒ‡ç”±SPå‘ç”¨æˆ·å‘é€å¹¿å‘Šæ—¶çš„èµ é€è¯è´¹
+			given_value_.resize(6);
+			buf_.insert(buf_.end(), given_value_.begin(), given_value_.end());
+			pt += 6;
 
-		//¿½±´È¡Öµ·¶Î§0-99999£¬¸ÃÌõ¶ÌÏûÏ¢µÄÊÕ·ÑÖµ£¬µ¥Î»Îª·Ö£¬ÓÉSP¶¨Òå
-		fee_value_.assign(6, 0);
-		for (int i = 0; i < 6; i++)
-		{
-			fee_value_[i] = buf[i + pt];
-		}
-		fee_value_ = fee_value_.c_str();
-		pt += 6;
-		//¿½±´È¡Öµ·¶Î§0-99999£¬ÔùËÍÓÃ»§µÄ»°·Ñ£¬µ¥Î»Îª·Ö£¬ÓÉSP¶¨Òå£¬ÌØÖ¸ÓÉSPÏòÓÃ»§·¢ËÍ¹ã¸æÊ±µÄÔùËÍ»°·Ñ
-		given_value_.assign(6, 0);
-		for (int i = 0; i < 6; i++)
-		{
-			given_value_[i] = buf[i + pt];
-		}
-		given_value_ = given_value_.c_str();
-		pt += 6;
+			//æ‹·è´
+			buf_.push_back(agent_flag_);
+			pt += 1;
+			//æ‹·è´
+			buf_.push_back(morelateto_MT_flag_);
+			pt += 1;
+			//æ‹·è´
+			buf_.push_back(msg_level_);
+			pt += 1;
+			//æ‹·è´
+			valid_time_.resize(16);
+			buf_.insert(buf_.end(), valid_time_.begin(), valid_time_.end());
+			pt += 16;
+			//æ‹·è´
+			at_time_.resize(16);
+			buf_.insert(buf_.end(), at_time_.begin(), at_time_.end());
+			pt += 16;
+			//æ‹·è´
+			buf_.push_back(report_flag_);
+			pt += 1;
+			//æ‹·è´
+			buf_.push_back(tp_pid_);
+			pt += 1;
+			//æ‹·è´
+			buf_.push_back(tp_udhi_);
+			pt += 1;
+			//æ‹·è´
+			buf_.push_back(msg_fmt_);
+			pt += 1;
+			//æ‹·è´
+			buf_.push_back(message_type_);
+			pt += 1;
+			//æ‹·è´çŸ­ä¿¡å†…å®¹é•¿åº¦
+			uint8_t temp_char_message_length[4];
+			unsigned int temp_ml = htonl(msg.size());
+			memcpy(temp_char_message_length, &temp_ml, 4);
+			buf_.insert(buf_.end(), &temp_char_message_length[0], &temp_char_message_length[4]);
+			pt += 4;
+			//æ‹·è´çŸ­ä¿¡å†…å®¹
+			buf_.insert(buf_.end(), msg.begin(), msg.end());
 
-		//¿½±´
-		agent_flag_ = buf[pt];
-		pt += 1;
-		//¿½±´
-		morelateto_MT_flag_ = buf[pt];
-		pt += 1;
-		//¿½±´
-		msg_level_ = buf[pt];
-		pt += 1;
-		//¿½±´
-		valid_time_.assign(16, 0);
-		for (int i = 0; i < 16; i++)
-		{
-			valid_time_[i] = buf[i + pt];
-		}
-		valid_time_ = valid_time_.c_str();
-		pt += 16;
-		//¿½±´
-		at_time_.assign(16, 0);
-		for (int i = 0; i < 16; i++)
-		{
-			at_time_[i] = buf[i + pt];
-		}
-		at_time_ = at_time_.c_str();
-		pt += 16;
-		//¿½±´
-		report_flag_ = buf[pt];
-		pt += 1;
 
-		//¿½±´
-		tp_pid_ = buf[pt];
-		pt += 1;
-
-		//¿½±´
-		tp_udhi_ = buf[pt];
-		pt += 1;
-
-		//¿½±´
-		msg_fmt_ = buf[pt];
-		pt += 1;
-
-		//¿½±´
-		message_type_ = buf[pt];
-		pt += 1;
-
-		//¿½±´¶ÌĞÅÄÚÈİ³¤¶È
-		char temp_char_message_length[4];
-		for (int i = 0; i < 4; i++)
-		{
-			temp_char_message_length[i] = buf[i + pt];
-		}
-		memcpy(&message_length_, temp_char_message_length, 4);
-		message_length_ = ntohl(message_length_);
-		pt += 4;
-
-		//³¤¶ÌĞÅ´¦Àí-------------------------------------------------
-		auto ptr = buf.begin() + pt;
-		int min = 0;
-		if (tp_udhi_ == 1)
-		{
-			//byte 1 : 05, ±íÊ¾Ê£ÓàĞ­ÒéÍ·µÄ³¤¶È
-			min = (uint32_t)(uint8_t)(*ptr) + 1;
-			++ptr;
-			//byte 2 : 00, Õâ¸öÖµÔÚGSM 03.40¹æ·¶9.2.3.24.1ÖĞ¹æ¶¨£¬±íÊ¾ËæºóµÄÕâÅú³¬³¤¶ÌĞÅµÄ±êÊ¶Î»³¤¶ÈÎª1£¨¸ñÊ½ÖĞµÄXXÖµ£©¡£
-			//byte 2 : 08, Õâ¸öÖµÔÚGSM 03.40¹æ·¶9.2.3.24.1ÖĞ¹æ¶¨£¬±íÊ¾ËæºóµÄÕâÅú³¬³¤¶ÌĞÅµÄ±êÊ¶Î»³¤¶ÈÎª2£¨¸ñÊ½ÖĞµÄXXÖµ£©¡£
-			uint8_t c = *ptr;
-			++ptr;
-			++ptr;
-			//byte 2 : 00, Õâ¸öÖµÔÚGSM 03.40¹æ·¶9.2.3.24.1ÖĞ¹æ¶¨£¬±íÊ¾ËæºóµÄÕâÅú³¬³¤¶ÌĞÅµÄ±êÊ¶Î»³¤¶ÈÎª1£¨¸ñÊ½ÖĞµÄXXÖµ£©¡£
-			if (c == 0)
+			for (size_t i = 0; i < 8; i++)
 			{
-				long_msg_id_ = (uint32_t)(uint8_t)(*ptr);
+				buf_.push_back(0);
+			}
+			pt += (msg.size());
+			pt += 8;
+
+
+			return buf_;
+		}
+
+		void recvSubmit(bytes &buf) override {
+			hd.recvHead(buf);
+			msg_id_this = hd.getSerialNumb();
+			msg_id = hd.getSerialNumb();
+			if (buf.size() < (20 + 21 + 21 + 1))
+			{
+				throw std::runtime_error("submit æ¶ˆæ¯é•¿åº¦é”™è¯¯");
+			}
+			int pt = 20;
+
+			//æ‹·è´SPæ¥å…¥å· 
+			sp_number_.assign(21, 0);
+			for (int i = 0; i < 21; i++)
+			{
+				sp_number_[i] = buf[i + pt];
+			}
+			sp_number_ = sp_number_.c_str();
+			pt += 21;
+			extnum_ = sp_number_;
+			//æ‹·è´ä»˜è´¹å·ç 
+			charge_number_.assign(21, 0);
+			for (int i = 0; i < 21; i++)
+			{
+				charge_number_[i] = buf[i + pt];
+			}
+			charge_number_ = charge_number_.c_str();
+			pt += 21;
+
+			//æ‹·è´æ¥æ”¶çŸ­æ¶ˆæ¯çš„æ‰‹æœºå·æ•°é‡
+			dest_total_ = buf[pt];
+			pt += 1;
+			num_.clear();
+			for (uint8_t i = 0; i < dest_total_; i++)
+			{
+				char temp[21] = { 0 };
+				for (int j = 0; j < 21; j++)
+				{
+					temp[j] = buf[pt + j];
+
+				}
+				std::string tempstr(temp);
+				tempstr = tempstr.c_str();
+				num_.push_back(tempstr);
+				pt += 21;
+			}
+
+			//æ‹·è´ä¼ä¸šä»£ç 
+			SPID.assign(5, 0);
+			for (int i = 0; i < 5; i++)
+			{
+				SPID[i] = buf[i + pt];
+			}
+			SPID = SPID.c_str();
+			pt += 5;
+			//æ‹·è´ä¸šåŠ¡ä»£ç ï¼Œç”±SPå®šä¹‰
+			service_type_.assign(10, 0);
+			for (int i = 0; i < 10; i++)
+			{
+				service_type_[i] = buf[i + pt];
+			}
+			service_type_ = service_type_.c_str();
+			pt += 10;
+
+			//æ‹·è´è®¡è´¹ç±»å‹
+			fee_type_ = std::to_string(int(buf[pt]));
+			pt += 1;
+
+			//æ‹·è´å–å€¼èŒƒå›´0-99999ï¼Œè¯¥æ¡çŸ­æ¶ˆæ¯çš„æ”¶è´¹å€¼ï¼Œå•ä½ä¸ºåˆ†ï¼Œç”±SPå®šä¹‰
+			fee_value_.assign(6, 0);
+			for (int i = 0; i < 6; i++)
+			{
+				fee_value_[i] = buf[i + pt];
+			}
+			fee_value_ = fee_value_.c_str();
+			pt += 6;
+			//æ‹·è´å–å€¼èŒƒå›´0-99999ï¼Œèµ é€ç”¨æˆ·çš„è¯è´¹ï¼Œå•ä½ä¸ºåˆ†ï¼Œç”±SPå®šä¹‰ï¼Œç‰¹æŒ‡ç”±SPå‘ç”¨æˆ·å‘é€å¹¿å‘Šæ—¶çš„èµ é€è¯è´¹
+			given_value_.assign(6, 0);
+			for (int i = 0; i < 6; i++)
+			{
+				given_value_[i] = buf[i + pt];
+			}
+			given_value_ = given_value_.c_str();
+			pt += 6;
+
+			//æ‹·è´
+			agent_flag_ = buf[pt];
+			pt += 1;
+			//æ‹·è´
+			morelateto_MT_flag_ = buf[pt];
+			pt += 1;
+			//æ‹·è´
+			msg_level_ = buf[pt];
+			pt += 1;
+			//æ‹·è´
+			valid_time_.assign(16, 0);
+			for (int i = 0; i < 16; i++)
+			{
+				valid_time_[i] = buf[i + pt];
+			}
+			valid_time_ = valid_time_.c_str();
+			pt += 16;
+			//æ‹·è´
+			at_time_.assign(16, 0);
+			for (int i = 0; i < 16; i++)
+			{
+				at_time_[i] = buf[i + pt];
+			}
+			at_time_ = at_time_.c_str();
+			pt += 16;
+			//æ‹·è´
+			report_flag_ = buf[pt];
+			pt += 1;
+
+			//æ‹·è´
+			tp_pid_ = buf[pt];
+			pt += 1;
+
+			//æ‹·è´
+			tp_udhi_ = buf[pt];
+			pt += 1;
+
+			//æ‹·è´
+			msg_fmt_ = buf[pt];
+			pt += 1;
+
+			//æ‹·è´
+			message_type_ = buf[pt];
+			pt += 1;
+
+			//æ‹·è´çŸ­ä¿¡å†…å®¹é•¿åº¦
+			char temp_char_message_length[4];
+			for (int i = 0; i < 4; i++)
+			{
+				temp_char_message_length[i] = buf[i + pt];
+			}
+			memcpy(&message_length_, temp_char_message_length, 4);
+			message_length_ = ntohl(message_length_);
+			pt += 4;
+
+			//é•¿çŸ­ä¿¡å¤„ç†-------------------------------------------------
+			auto ptr = buf.begin() + pt;
+			int min = 0;
+			if (tp_udhi_ == 1)
+			{
+				//byte 1 : 05, è¡¨ç¤ºå‰©ä½™åè®®å¤´çš„é•¿åº¦
+				min = (uint32_t)(uint8_t)(*ptr) + 1;
+				++ptr;
+				//byte 2 : 00, è¿™ä¸ªå€¼åœ¨GSM 03.40è§„èŒƒ9.2.3.24.1ä¸­è§„å®šï¼Œè¡¨ç¤ºéšåçš„è¿™æ‰¹è¶…é•¿çŸ­ä¿¡çš„æ ‡è¯†ä½é•¿åº¦ä¸º1ï¼ˆæ ¼å¼ä¸­çš„XXå€¼ï¼‰ã€‚
+				//byte 2 : 08, è¿™ä¸ªå€¼åœ¨GSM 03.40è§„èŒƒ9.2.3.24.1ä¸­è§„å®šï¼Œè¡¨ç¤ºéšåçš„è¿™æ‰¹è¶…é•¿çŸ­ä¿¡çš„æ ‡è¯†ä½é•¿åº¦ä¸º2ï¼ˆæ ¼å¼ä¸­çš„XXå€¼ï¼‰ã€‚
+				uint8_t c = *ptr;
+				++ptr;
+				++ptr;
+				//byte 2 : 00, è¿™ä¸ªå€¼åœ¨GSM 03.40è§„èŒƒ9.2.3.24.1ä¸­è§„å®šï¼Œè¡¨ç¤ºéšåçš„è¿™æ‰¹è¶…é•¿çŸ­ä¿¡çš„æ ‡è¯†ä½é•¿åº¦ä¸º1ï¼ˆæ ¼å¼ä¸­çš„XXå€¼ï¼‰ã€‚
+				if (c == 0)
+				{
+					long_msg_id_ = (uint32_t)(uint8_t)(*ptr);
+					++ptr;
+				}
+				//byte 2 : 08, è¿™ä¸ªå€¼åœ¨GSM 03.40è§„èŒƒ9.2.3.24.1ä¸­è§„å®šï¼Œè¡¨ç¤ºéšåçš„è¿™æ‰¹è¶…é•¿çŸ­ä¿¡çš„æ ‡è¯†ä½é•¿åº¦ä¸º2ï¼ˆæ ¼å¼ä¸­çš„XXå€¼ï¼‰ã€‚
+				else if (c == 8)
+				{
+					uint16_t d = 0;
+					memcpy_s(&d, 2, &(*ptr), 2);
+					ptr += 2;
+					long_msg_id_ = (uint32_t)d;
+				}
+				else
+				{
+					throw smproxy::exception("é•¿çŸ­ä¿¡å†…å®¹å¤´æ ¼å¼é”™è¯¯", 1);
+				}
+				same_msg_total_ = (uint8_t)*ptr;
+				++ptr;
+				same_msg_num_ = (uint8_t)*ptr;
 				++ptr;
 			}
-			//byte 2 : 08, Õâ¸öÖµÔÚGSM 03.40¹æ·¶9.2.3.24.1ÖĞ¹æ¶¨£¬±íÊ¾ËæºóµÄÕâÅú³¬³¤¶ÌĞÅµÄ±êÊ¶Î»³¤¶ÈÎª2£¨¸ñÊ½ÖĞµÄXXÖµ£©¡£
-			else if (c == 8)
+			//æ‹·è´çŸ­ä¿¡å†…å®¹
+			switch (msg_fmt_)
 			{
-				uint16_t d = 0;
-				memcpy_s(&d, 2, &(*ptr), 2);
-				ptr += 2;
-				long_msg_id_ = (uint32_t)d;
-			}
-			else
+			case 8:
 			{
-				throw smproxy::exception("³¤¶ÌĞÅÄÚÈİÍ·¸ñÊ½´íÎó", 1);
+				int nDstLength;        // UNICODEå®½å­—ç¬¦æ•°ç›®
+				WCHAR wchar[200] = { 0 };  // UNICODEä¸²ç¼“å†²åŒº
+				std::wstring wstr(400, L'\0');
+				// é«˜ä½å­—èŠ‚å¯¹è°ƒï¼Œæ‹¼æˆUNICODE
+				for (int i = 0; i < (message_length_ - min) / 2; i++)
+				{
+					wstr[i] = (uint8_t)*ptr++ << 8;    // å…ˆé«˜ä½å­—èŠ‚
+					wstr[i] |= (uint8_t)*ptr++;        // åä½ä½å­—èŠ‚
+				}
+				wstr = wstr.c_str();
+				// UNICODEä¸²-->å­—ç¬¦ä¸²
+				message_content_ = boost::locale::conv::from_utf<wchar_t>(wstr, "GBK");
 			}
-			same_msg_total_ = (uint8_t)*ptr;
-			++ptr;
-			same_msg_num_ = (uint8_t)*ptr;
-			++ptr;
-		}
-		//¿½±´¶ÌĞÅÄÚÈİ
-		switch (msg_fmt_)
-		{
-		case 8:
-		{
-			int nDstLength;        // UNICODE¿í×Ö·ûÊıÄ¿
-			WCHAR wchar[200] = { 0 };  // UNICODE´®»º³åÇø
-			std::wstring wstr(400, L'\0');
-			// ¸ßµÍ×Ö½Ú¶Ôµ÷£¬Æ´³ÉUNICODE
-			for (int i = 0; i < (message_length_ - min) / 2; i++)
-			{
-				wstr[i] = (uint8_t)*ptr++ << 8;    // ÏÈ¸ßÎ»×Ö½Ú
-				wstr[i] |= (uint8_t)*ptr++;        // ºóµÍÎ»×Ö½Ú
-			}
-			wstr = wstr.c_str();
-			// UNICODE´®-->×Ö·û´®
-			message_content_ = boost::locale::conv::from_utf<wchar_t>(wstr, "GBK");
-		}
-		break;
-		case 15:
-			message_content_.assign(ptr, ptr + message_length_ - min);
 			break;
-		default:
-			throw smproxy::exception("Î´Ê¶±ğ±àÂëºÅ", 9);
-			break;
+			case 15:
+				message_content_.assign(ptr, ptr + message_length_ - min);
+				break;
+			default:
+				throw smproxy::exception("æœªè¯†åˆ«ç¼–ç å·", 9);
+				break;
+			}
+
+
+			pt += message_length_;
+			pt += 8;
+
 		}
-
-
-		pt += message_length_;
-		pt += 8;
-
-	}
-	virtual ~SGIP12Submit(){};
-	SGIP12Head hd;
-};
+		virtual ~SGIP12Submit() {};
+		SGIP12Head hd;
+	};
+}//smproxy

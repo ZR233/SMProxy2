@@ -18,7 +18,7 @@ namespace smproxy {
 	private:
 		Buffer body_;
 	public:
-		CMPP20Submit() :ISubmit()
+		CMPP20Submit()
 		{
 			body_.pushField(msg_id_.set(8,""));
 			body_.pushField(pk_total_.setSize(1));
@@ -143,27 +143,22 @@ namespace smproxy {
 		}
 
 		bytes submit(
-			char* src_ID,
+			std::string src_ID,
 			std::vector<std::string> &user_num,
 			int msg_fmt,
 			std::vector<uint8_t>& message_content,
 			int pk_total = 0,
 			int pk_number = 0,
 			int tp_pid = 0,
-			int tp_udhi = 0,
-			int same_msg_total = 0,
-			int same_msg_num = 0,
-			int long_msg_id = 0
-		)
+			int tp_udhi = 0
+		) override
 		{
 			src_ID_.set(src_ID);
 			msg_fmt_ = msg_fmt;
 			pk_total_ = pk_total;
 			tp_pid_ = tp_pid;
 			tp_udhi_ = tp_udhi;
-			same_msg_total_ = same_msg_total;
-			same_msg_num_ = same_msg_num;
-			long_msg_id_ = long_msg_id;
+
 			dest_total_ = user_num.size();
 			message_length_ = message_content.size();
 			buf_ = body_.to_bytes();
