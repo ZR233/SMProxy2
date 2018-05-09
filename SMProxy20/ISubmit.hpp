@@ -13,7 +13,7 @@ namespace smproxy {
 
 	//brief submit 接口
 	class ISubmit:
-		virtual public IBaseParam
+		public IBaseParam
 	{
 	public:
 		typedef std::vector<uint8_t> bytes;
@@ -48,21 +48,21 @@ namespace smproxy {
 
 		std::vector<std::string>& getPhNums() { return dest_term_IDs_; };
 		// 取短消息长度
-		int getTextL() { return message_length_.get(); };
+		int getTextL() { return int(message_length_.get()); };
 		// 取短消息内容
 		std::vector<uint8_t>& getText() { return message_content_; };
 		// 取手机号数量
 		int getUserCount() { return int(dest_total_.get()); };
 		void setTP_pid(uint8_t TP_pid) { tp_pid_ = TP_pid; };
-		int getTP_udhi() { return tp_udhi_.get(); };
+		int getTP_udhi() { return int(tp_udhi_.get()); };
 		void setTP_udhi(uint8_t TP_udhi) { tp_udhi_ = TP_udhi; };
 
-		int getSame_msg_total() { return same_msg_total_.get(); };
-		int getSame_msg_num() { return same_msg_num_.get(); };
-		uint32_t getLong_msg_id() { return long_msg_id_.get(); };
-		int getPk_total() { return  pk_total_.get(); };
+		int getSame_msg_total() { return int(same_msg_total_.get()); };
+		int getSame_msg_num() { return int(same_msg_num_.get()); };
+		uint32_t getLong_msg_id() { return uint32_t(long_msg_id_.get()); };
+		int getPk_total() { return  int(pk_total_.get()); };
 		void setPk_total(uint8_t  pk_total) { pk_total_ = pk_total; };
-		int getPk_number() { return  pk_number_.get(); };
+		int getPk_number() { return  int(pk_number_.get()); };
 		void setPk_number(uint8_t pk_number) { pk_number_ = pk_number; };
 		void setMsg_src_(std::string msg_src) { src_ID_ = msg_src; };
 		std::string getMsg_src_() { return src_ID_.get(); };

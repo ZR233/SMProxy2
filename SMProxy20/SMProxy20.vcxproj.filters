@@ -78,6 +78,21 @@
     <ClInclude Include="SMGP303Submit.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CMPP20Resps.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IResp.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CMPP20Deliver.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IDeliver.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IReport.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -95,8 +110,5 @@
     <ClCompile Include="CResovle.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>

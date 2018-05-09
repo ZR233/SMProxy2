@@ -188,6 +188,7 @@ namespace smproxy {
 			{
 				buf_.push_back('\0');
 			}
+			return buf_;
 		}
 	};
 

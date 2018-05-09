@@ -6,8 +6,9 @@
 #include "IHead.hpp"
 #include "ISubmit.hpp"
 #include "IBind.hpp"
-//#include "IDeliver.hpp"
-
+#include "IResp.hpp"
+#include "IDeliver.hpp"
+#include "IReport.hpp"
 
 //#include "CMPP20Connect.hpp"
 //#include "CMPP20Submit.hpp"
@@ -47,21 +48,31 @@ namespace smproxy {
 		);
 		~CResolve() {}
 
+		//解析数据
 		void resolveBuf(bytes& buf);
 
-		bytes submit(
+		//生成Submit数据
+		bytes submitBytes(
 			int& serial_numb,
-			char* src_ID,
+			const char* src_ID,
 			std::vector<std::string> &user_num,
 			std::vector<uint8_t>& message_content
 		);
-		bytes connect(
+
+		//生成login数据
+		bytes loginBytes(
 			int& serial_numb,
 			const char* password,
 			int login_type
 		);
 
+		//生成Deliver_Resp数据
+		bytes deliverRespBytes(std::string serial_numb, int status, std::string msg_id);
 
+		//生成active_Resp数据
+		bytes activeRespBytes(std::string serial_numb, int status);
+
+		bytes activeBytes(int& serial_numb);
 		/*void recvHead(std::vector<uint8_t> &buf)
 		{
 			ch->recvHead(buf);
@@ -253,9 +264,9 @@ namespace smproxy {
 				throw k;
 			}
 		}*/
-		//指令号 1：连接 2：断开 3：提交信息 4:上行短信 5:短信报告 8:心跳检测
+
 		Command getCmdId() {
-			return cmd_id;
+			return cmd_id_;
 		};
 		//用户名
 		std::string& getUsr() { return username; };
@@ -276,20 +287,16 @@ namespace smproxy {
 		unsigned int& getSN3() {
 			return SN3;
 		};
-
-		std::string& getSerial_numb() {
-			return serial_numb;
+		int getErrCode()
+		{
+			return err_code_;
+		}
+		std::string getSerial_numb() {
+			return hd->getSerialNumb();
 		};
 		//发送至电话号码
 		std::vector<std::string>& getPhNums() { return ph_nums; };
-		//短消息内容
-		std::string& getMsgText() {
-			return msg_text;
-		};
-		//是否为长短信 0不是 1 是
-		int getTP_udhi() {
-			return TP_udhi;
-		};
+
 		//一条msg_id对应几条submit
 		int getPk_total() {
 			return pk_total;
@@ -306,17 +313,44 @@ namespace smproxy {
 		int getLong_msg_id() {
 			return long_msg_id;
 		};
-		uint32_t getResp() {
-			return resp_;
+		int getRespStatus() {
+			return rsp->getStatus();
 		};
-		std::string getMsg_id() {
-			return msg_id;
+
+		std::string getISMGIdFromSubmitResp()
+		{
+			return rsp->getISMGId();
 		}
-		std::string getMsg_id_this() {
+		std::string getDestId()
+		{
+			return dest_id_;
+		}
+
+		std::string getMsgId() {
+			return msg_id_;
+		}
+		std::string getMsgIdThis() {
 			return msg_id_this_;
 		};
+
+		int getTPPid()
+		{
+			return dlv->getTpPid();
+		}
+
+		int getTPUhdi()
+		{
+			return dlv->getTpUdhi();
+		}
+
+		int getMsgFmt() { return dlv->getMsgFmt(); }
+
+		bytes getMsgContent() { return message_content_; };
+
+		int getMsgLen() { return msg_len_; };
+
 		void setMsg_id(std::string msg_id) {
-			this->msg_id = msg_id;
+			this->msg_id_ = msg_id;
 		}
 		void setResult(uint8_t result) {
 			this->result = result;
@@ -328,32 +362,55 @@ namespace smproxy {
 		std::string getExtnum() {
 			return extnum_;
 		};
-
+		std::string getSrcTerminalId()
+		{
+			return src_terminal_id_;
+		}
 		void setSpId(std::string sp_id) {
 			sp_ID_ = sp_id;
 		}
 		std::string getSpId() {
 			return sp_ID_;
 		};
+
+		std::string getReportStat()
+		{
+			return rp->getStat();
+		}
+		std::string getISMGId()
+		{
+			return ISMG_id_;
+		}
 	private:
-		std::string msg_id;
+		Protocol protocol_;
+		std::string msg_id_;
 		std::string msg_id_this_;
 		uint8_t result;
 		//指令号 1：连接 2：断开 3：提交信息 4:上行短信 5:短信报告 8:心跳检测
-		Command cmd_id;
+		Command cmd_id_;
 		std::string username;
 		std::string password_;
+
+		std::string src_terminal_id_;
+		std::string dest_id_;
+	
+
+
 		unsigned int time_stamp;
 		unsigned int SN1;
 		unsigned int SN2;
 		unsigned int SN3;
 		std::vector<std::string> ph_nums;
-		std::string msg_text;
+
+
+		bytes message_content_;
+		int msg_len_;
 		unsigned int resp_;
 		size_t total_len;//消息总长度
 		std::string serial_numb; //消息流水号, 顺序累加, 步长为1, 循环使用（一对请求和应答消息的流水号必须相同）
 								 //std::string source_addr;//源地址，为SP_Id，即SP的企业代码。cmpp 6字节
 
+		int err_code_;
 		int pk_total;
 		int pk_number;
 		int TP_udhi;
@@ -377,8 +434,9 @@ namespace smproxy {
 		boost::shared_ptr<IHead> hd;
 		boost::shared_ptr<IBind> bd;
 		boost::shared_ptr<ISubmit> sb;
-		//boost::shared_ptr<IDeliver> dlv;
-		//boost::shared_ptr<IReport> rp;
+		boost::shared_ptr<IResp> rsp;
+		boost::shared_ptr<IDeliver> dlv;
+		boost::shared_ptr<IReport> rp;
 		bytes buf_;
 	};
 

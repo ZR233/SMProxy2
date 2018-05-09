@@ -88,7 +88,7 @@ namespace smproxy
 		}
 		std::string get()
 		{
-			return str_;
+			return str_.c_str();
 		}
 		void read(bytes::iterator &iter) override
 		{
@@ -187,7 +187,7 @@ namespace smproxy
 			this->integer_ = value;
 		}
 		~FieldInt() {};
-		FieldInt& operator =(const uint32_t& integer)//赋值运算符
+		FieldInt& operator =(const uint64_t& integer)//赋值运算符
 		{
 			set(integer);
 			return *this;

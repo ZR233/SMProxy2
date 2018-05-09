@@ -40,7 +40,7 @@ namespace smproxy {
 		};
 		// 取登录类型。
 		unsigned char getType() {
-			return login_type_.get();
+			return unsigned char(login_type_.get());
 		};
 		//设置登录类型。
 		//SGIP:
@@ -55,9 +55,9 @@ namespace smproxy {
 			login_type_ = type;
 		};
 		//双方协商的版本号(高位4bit表示主版本号,低位4bit表示次版本号)
-		char getVersion() { return version_.get(); };
+		char getVersion() { return unsigned char(version_.get()); };
 		//时间戳的明文,由客户端产生,格式为MMDDHHMMSS，即月日时分秒，10位数字的整型，右对齐
-		unsigned int getTimestamp() {
+		uint64_t getTimestamp() {
 			return timestamp_.get();
 		};
 		virtual ~IBind() {};

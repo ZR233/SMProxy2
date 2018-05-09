@@ -5,6 +5,8 @@
 #include <boost/date_time/posix_time/conversion.hpp>
 #include <string>
 
+
+
 class Utils
 {
 	Utils() {};
@@ -159,5 +161,12 @@ public:
 		uint32_t intger;
 		memcpy_s(&intger, 4, bytes, 4);
 		return ntohl( intger);
+	}
+	static uint32_t getISMGFromCMPP20MsgID(uint64_t msg_id)
+	{
+		msg_id = msg_id << 16;
+		msg_id = msg_id >> 16;
+		msg_id = msg_id >> 26;
+		return uint32_t(msg_id);
 	}
 };

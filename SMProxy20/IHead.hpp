@@ -41,25 +41,25 @@ namespace smproxy {
 		virtual bytes header(uint32_t msg_len, Command cmdID, std::string serial_numb) = 0;
 		virtual bytes::iterator recvHead(bytes& buf) = 0;
 		// 消息长度
-		uint32_t getMsgLen() { return total_len_.get(); };
+		uint32_t getMsgLen() { return uint32_t(total_len_.get()); };
 		// 指令ID
 		Command getCmdID() { return cmd_ID_; };
 
 		void setCmdID(uint32_t cmdID) { this->cmdID_ = cmdID; };
 
 		// SN2
-		uint32_t getSN2() { return SN2_.get(); };
+		uint32_t getSN2() { return uint32_t(SN2_.get()); };
 
 		// 取纯数字流水号
-		uint32_t getIntSerialNumb() { return int_serial_numb_.get(); };
+		uint32_t getIntSerialNumb() { return uint32_t(int_serial_numb_.get()); };
 		virtual ~IHead() {};
+
+	protected:
 		smproxy::FieldInt SN1_;//通信节点编号
 		smproxy::FieldInt SN2_;
 		smproxy::FieldInt cmdID_;
 		smproxy::FieldInt total_len_;
 		Command cmd_ID_;
-	protected:
-
 	};//IHead
 
 }//smproxy

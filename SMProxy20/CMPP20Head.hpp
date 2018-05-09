@@ -90,6 +90,7 @@ namespace smproxy {
 				BOOST_THROW_EXCEPTION(exception("消息头字符串长度过短", 1));
 			}
 			auto iter = body_.reslov(buf, buf.begin());
+			serial_numb_ = std::to_string(int_serial_numb_.get());
 			switch (cmdID_.get())
 			{
 			case 0x00000001:
@@ -130,7 +131,7 @@ namespace smproxy {
 
 		
 		uint32_t createSerualNum(uint32_t serial_numb) {
-			if (serial_numb = 2147483647)
+			if (serial_numb == 2147483647)
 			{
 				serial_numb = 0;
 			}
