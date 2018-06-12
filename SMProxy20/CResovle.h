@@ -381,6 +381,10 @@ namespace smproxy {
 		{
 			return ISMG_id_;
 		}
+
+		void setServiceId(std::string service_id) { sb->setServiceId( service_id); };
+		std::string getServiceId() { return sb->getServiceId(); };
+
 	private:
 		Protocol protocol_;
 		std::string msg_id_;

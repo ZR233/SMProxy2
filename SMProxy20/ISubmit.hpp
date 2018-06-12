@@ -72,6 +72,10 @@ namespace smproxy {
 
 		void setAtTime(std::string at_time) { at_time_ = at_time; };
 		std::string getAtTime() { return at_time_.get(); };
+
+		void setServiceId(std::string service_id) { service_id_ = service_id; };
+		std::string getServiceId() { return service_id_.get(); };
+
 	protected:
 		//------------常用参数---------------
 
