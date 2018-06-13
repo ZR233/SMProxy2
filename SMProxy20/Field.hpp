@@ -74,7 +74,10 @@ namespace smproxy
 		FieldStr& set(std::string str)
 		{
 			if (str.size() > size)
-				BOOST_THROW_EXCEPTION(exception("Field超长"));
+			{
+				//BOOST_THROW_EXCEPTION(exception("[Field超长,设定值：" + std::to_string(size) + "][输入值：" + str +"]"));
+			}
+				
 			this->str_ = str;
 			this->str_.resize(size);
 			return *this;
@@ -138,7 +141,11 @@ namespace smproxy
 		FieldBytes& set(bytes& value)
 		{
 			if (value.size() > size)
-				BOOST_THROW_EXCEPTION(exception("Field超长"));
+			{
+				std::string value_str;
+				value_str.assign(value.begin(), value.end());
+				BOOST_THROW_EXCEPTION(exception("[Field超长,设定值：" + std::to_string(size) + "][输入值：" + value_str + "]"));
+			}
 			this->value_ = value;
 			this->value_.resize(size);
 			return *this;
