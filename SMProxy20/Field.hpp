@@ -7,6 +7,9 @@
 #include "exception.hpp"
 #include <map>
 #include <tuple>
+#include<boost/log/trivial.hpp>
+
+
 /*************************************************
 Author:zr
 Date:2018-03-15
@@ -75,9 +78,8 @@ namespace smproxy
 		{
 			if (str.size() > size)
 			{
-				//BOOST_THROW_EXCEPTION(exception("[Field超长,设定值：" + std::to_string(size) + "][输入值：" + str +"]"));
+				BOOST_LOG_TRIVIAL(warning) << "[Field超长,设定长度：" + std::to_string(size) + "，输入值：" + str + "]";
 			}
-				
 			this->str_ = str;
 			this->str_.resize(size);
 			return *this;
@@ -144,7 +146,7 @@ namespace smproxy
 			{
 				std::string value_str;
 				value_str.assign(value.begin(), value.end());
-				BOOST_THROW_EXCEPTION(exception("[Field超长,设定值：" + std::to_string(size) + "][输入值：" + value_str + "]"));
+				BOOST_LOG_TRIVIAL(warning) << "[Field超长,设定长度：" + std::to_string(size) + "，输入值：" + value_str + "]";
 			}
 			this->value_ = value;
 			this->value_.resize(size);
@@ -248,7 +250,7 @@ namespace smproxy
 			}
 				break;
 			default:
-				BOOST_THROW_EXCEPTION(exception("错误的数值长度"));
+				BOOST_THROW_EXCEPTION(exception("错误的数值长度：" + std::to_string(size), 0, 1));
 			}
 			iter += size;
 		}
@@ -279,7 +281,7 @@ namespace smproxy
 			}
 			break;
 			default:
-				BOOST_THROW_EXCEPTION(exception("错误的数值长度"));
+				BOOST_THROW_EXCEPTION(exception("错误的数值长度：" + std::to_string(size), 0, 1));
 			}
 			return temp;
 		}
